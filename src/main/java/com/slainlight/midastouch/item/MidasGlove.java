@@ -39,7 +39,7 @@ public class MidasGlove extends TemplateItemBase implements Accessory
             List<EntityBase> entities = level.getEntities(player, Box.create(player.x - 1.F, player.y - 1.F, player.z - 1.F, player.x + 1.F, player.y + 1.F, player.z + 1.F));
             for (EntityBase entity : entities)
             {
-                if (entity instanceof Living living)
+                if (entity instanceof Living living && !(entity instanceof PlayerBase))
                 {
                     if (!((GoldenEntity) (Object) living).midastouch$getGolden())
                     {

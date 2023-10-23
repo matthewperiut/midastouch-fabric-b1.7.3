@@ -139,12 +139,15 @@ abstract public class LivingMixin extends EntityBase implements GoldenEntity
                 {
                     if (player.inventory.getHeldItem().getType() instanceof Pickaxe)
                     {
+                        ((GoldenEntity) (Object) this).midastouch$setGolden(false);
+
                         applyDamage(1000);
                         int var2 = this.rand.nextInt(18);
 
                         for (int var3 = 0; var3 < var2; ++var3)
                         {
-                            this.dropItem(new ItemInstance(ItemBase.goldIngot, 1), 1);
+                            if (!player.level.isServerSide)
+                                this.dropItem(new ItemInstance(ItemBase.goldIngot, 1), 1);
                         }
                     }
                 }
