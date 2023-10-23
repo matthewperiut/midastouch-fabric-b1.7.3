@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.slainlight.midastouch.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "LevelMixin",
+    "LivingAccessor",
+    "LivingMixin"
+  ],
+  "server": [
+  ],
+  "client": [
+    "LivingRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
