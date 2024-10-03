@@ -10,7 +10,7 @@ public class MidasTouchMod implements ModInitializer
     @Override
     public void onInitialize()
     {
-        if (!FabricLoader.getInstance().isModLoaded("aether"))
+        if (!FabricLoader.getInstance().isModLoaded("aether") || AccessoryRegister.getNumberOfType("gloves") < 1)
         {
             AccessoryRegister.add("gloves", 0, 2);
         }

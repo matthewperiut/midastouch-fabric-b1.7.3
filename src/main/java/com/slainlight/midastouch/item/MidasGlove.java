@@ -8,12 +8,12 @@ import net.minecraft.entity.player.PlayerBase;
 import net.minecraft.item.ItemInstance;
 import net.minecraft.level.Level;
 import net.minecraft.util.maths.Box;
-import net.modificationstation.stationapi.api.registry.Identifier;
-import net.modificationstation.stationapi.api.template.item.TemplateItemBase;
+import net.modificationstation.stationapi.api.template.item.TemplateItem;
+import net.modificationstation.stationapi.api.util.Identifier;
 
 import java.util.List;
 
-public class MidasGlove extends TemplateItemBase implements Accessory
+public class MidasGlove extends TemplateItem implements Accessory
 {
     public MidasGlove(Identifier identifier)
     {
