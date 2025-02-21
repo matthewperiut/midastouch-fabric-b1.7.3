@@ -1,7 +1,7 @@
 package com.slainlight.midastouch.item;
 
 import net.mine_diver.unsafeevents.listener.EventListener;
-import net.minecraft.item.ItemBase;
+import net.minecraft.item.Item;
 import net.modificationstation.stationapi.api.event.registry.ItemRegistryEvent;
 import net.modificationstation.stationapi.api.mod.entrypoint.Entrypoint;
 import net.modificationstation.stationapi.api.util.Namespace;
@@ -9,11 +9,10 @@ import net.modificationstation.stationapi.api.util.Null;
 
 public class ItemListener
 {
-
-    public static ItemBase MIDAS_GLOVE;
+    public static Item MIDAS_GLOVE;
 
     @Entrypoint.Namespace
-    public static final Namespace MOD_ID = Null.get();
+    public static Namespace MOD_ID = Null.get();
 
     @EventListener
     public void registerItems(ItemRegistryEvent event)

@@ -29,6 +29,9 @@
     ],
     "main": [
       "com.slainlight.midastouch.MidasTouchMod"
+    ],
+    "bhcreative:event_bus": [
+      "com.slainlight.midastouch.BHCreativeSupport"
     ]
   },
   "mixins": [
@@ -37,6 +40,11 @@
 
   "depends": {
     "minecraft": "1.0.0-beta.7.3",
+    "stationapi": ">=2.0.0-alpha.3",
     "accessoryapi": "*"
+  },
+
+  "recommends": {
+    "modmenu": "*"
   }
 }
