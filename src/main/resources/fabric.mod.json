@@ -29,6 +29,9 @@
     ],
     "main": [
       "com.slainlight.midastouch.MidasTouchMod"
+    ],
+    "bhcreative:event_bus": [
+      "com.slainlight.midastouch.BHCreativeSupport"
     ]
   },
   "mixins": [
