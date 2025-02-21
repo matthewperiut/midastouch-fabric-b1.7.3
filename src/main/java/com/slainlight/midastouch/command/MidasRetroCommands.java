@@ -1,8 +1,8 @@
 package com.slainlight.midastouch.command;
 
-import com.matthewperiut.spc.api.CommandRegistry;
+import com.matthewperiut.retrocommands.api.CommandRegistry;
 
-public class MidasSPC
+public class MidasRetroCommands
 {
     public static void add()
     {

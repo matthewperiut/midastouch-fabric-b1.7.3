@@ -1,13 +1,13 @@
 package com.slainlight.midastouch.mixin;
 
 import com.slainlight.midastouch.entity.GoldenEntity;
-import net.minecraft.entity.EntityBase;
-import net.minecraft.entity.Living;
-import net.minecraft.entity.player.PlayerBase;
-import net.minecraft.item.ItemBase;
-import net.minecraft.item.ItemInstance;
-import net.minecraft.item.tool.Pickaxe;
-import net.minecraft.level.Level;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,23 +16,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(Living.class)
-abstract public class LivingMixin extends EntityBase implements GoldenEntity
+@Mixin(LivingEntity.class)
+abstract public class LivingMixin extends Entity implements GoldenEntity
 {
     @Shadow
-    public float handSwingProgress;
+    public float swingAnimationProgress;
     @Shadow
-    public float lastHandSwingProgress;
+    public float lastSwingAnimationProgress;
+
     @Shadow
-    public float limbDistance;
+    public float walkAnimationSpeed;
     @Shadow
-    public float field_1012;
+    public float lastWalkAnimationSpeed;
+
     @Shadow
-    public float field_1013;
+    public float bodyYaw;
     @Shadow
-    public float field_1048;
+    public float lastBodyYaw;
+
     @Shadow
-    public float field_1050;
+    public float walkAnimationProgress;
     @Shadow
     public int deathTime;
 
@@ -45,7 +48,7 @@ abstract public class LivingMixin extends EntityBase implements GoldenEntity
     @Unique
     private boolean isGolden = false;
 
-    public LivingMixin(Level arg)
+    public LivingMixin(World arg)
     {
         super(arg);
     }
@@ -72,55 +75,62 @@ abstract public class LivingMixin extends EntityBase implements GoldenEntity
     boolean frozen = false;
 
     @Unique
-    float lastHandSwingProgressHeld;
+    float lastSwingAnimationProgressHeld;
     @Unique
-    float handSwingProgressHeld;
+    float swingAnimationProgressHeld;
     @Unique
-    float limbDistanceHeld;
+    float walkAnimationSpeedHeld;
     @Unique
-    float field_1048Held;
+    float lastWalkAnimationSpeedHeld;
 
     @Unique
-    float field_1012Held;
+    float bodyYawHeld;
     @Unique
-    float field_1013Held;
+    float lastBodyYawHeld;
 
     @Unique
-    float field_1050Held;
+    float walkAnimationProgressHeld;
     @Unique
     int deathTimeHeld;
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Living;updateDespawnCounter()V"), cancellable = true)
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/LivingEntity;tickMovement()V"
+            ),
+            cancellable = true
+    )
     public void canc(CallbackInfo ci)
     {
-        if (((GoldenEntity) (Object) this).midastouch$getGolden() && ((Living) (Object) this).isAlive())
+        if (((GoldenEntity) (Object) this).midastouch$getGolden() && ((LivingEntity) (Object) this).isAlive())
         {
             if (!frozen)
             {
                 frozen = true;
-                lastHandSwingProgressHeld = lastHandSwingProgress;
-                handSwingProgressHeld = handSwingProgress;
-                limbDistanceHeld = limbDistance;
-                field_1048Held = field_1048;
-                field_1012Held = field_1012;
-                field_1013Held = field_1013;
-                field_1050Held = field_1050;
+                lastSwingAnimationProgressHeld = lastSwingAnimationProgress;
+                swingAnimationProgressHeld = swingAnimationProgress;
+                walkAnimationSpeedHeld = walkAnimationSpeed;
+                lastWalkAnimationSpeedHeld = lastWalkAnimationSpeed;
+                bodyYawHeld = bodyYaw;
+                lastBodyYawHeld = lastBodyYaw;
+                walkAnimationProgressHeld = walkAnimationProgress;
                 deathTimeHeld = deathTime;
             }
 
-            lastHandSwingProgress = lastHandSwingProgressHeld;
-            handSwingProgress = handSwingProgressHeld;
+            lastSwingAnimationProgress = lastSwingAnimationProgressHeld;
+            swingAnimationProgress = swingAnimationProgressHeld;
 
-            limbDistance = limbDistanceHeld;
-            field_1048 = field_1048Held;
+            walkAnimationSpeed = walkAnimationSpeedHeld;
+            lastWalkAnimationSpeed = lastWalkAnimationSpeedHeld;
 
-            field_1012 = field_1012Held;
-            field_1013 = field_1013Held;
+            bodyYaw = bodyYawHeld;
+            lastBodyYaw = lastBodyYawHeld;
 
-            field_1050 = field_1050Held;
+            walkAnimationProgress = walkAnimationProgressHeld;
             deathTime = deathTimeHeld;
 
-            EntityBase entityBase = (EntityBase) this;
+            Entity entityBase = (Entity) this;
 
             entityBase.move(0, -0.2F, 0);
 
@@ -129,25 +139,25 @@ abstract public class LivingMixin extends EntityBase implements GoldenEntity
     }
 
     @Inject(method = "damage", at = @At("HEAD"))
-    public void damage(EntityBase i, int par2, CallbackInfoReturnable<Boolean> cir)
+    public void damage(Entity i, int par2, CallbackInfoReturnable<Boolean> cir)
     {
         if (((GoldenEntity) (Object) this).midastouch$getGolden())
         {
-            if (i instanceof PlayerBase player)
+            if (i instanceof PlayerEntity player)
             {
-                if (player.inventory.getHeldItem() != null)
+                if (player.inventory.getSelectedItem() != null)
                 {
-                    if (player.inventory.getHeldItem().getType() instanceof Pickaxe)
+                    if (player.inventory.getSelectedItem().getItem() instanceof PickaxeItem)
                     {
                         ((GoldenEntity) (Object) this).midastouch$setGolden(false);
 
                         applyDamage(1000);
-                        int var2 = this.rand.nextInt(18);
+                        int var2 = this.random.nextInt(18);
 
                         for (int var3 = 0; var3 < var2; ++var3)
                         {
-                            if (!player.level.isServerSide)
-                                this.dropItem(new ItemInstance(ItemBase.goldIngot, 1), 1);
+                            if (!player.world.isRemote)
+                                this.dropItem(new ItemStack(Item.GOLD_INGOT, 1), 1);
                         }
                     }
                 }

@@ -1,16 +1,15 @@
 package com.slainlight.midastouch.command;
 
-import com.matthewperiut.spc.api.Command;
-import com.matthewperiut.spc.util.SharedCommandSource;
+import com.matthewperiut.retrocommands.api.Command;
+import com.matthewperiut.retrocommands.util.SharedCommandSource;
 import com.slainlight.midastouch.entity.GoldenEntity;
-import net.minecraft.entity.EntityBase;
-import net.minecraft.entity.Living;
-import net.minecraft.entity.player.PlayerBase;
-import net.minecraft.util.maths.Box;
-
 import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.Box;
 
 public class GoldenCommand implements Command
 {
@@ -35,12 +34,12 @@ public class GoldenCommand implements Command
             return;
         }
 
-        EntityBase target = null;
-        for (Object o : commandSource.getPlayer().level.entities)
+        Entity target = null;
+        for (Object o : commandSource.getPlayer().world.entities)
         {
-            EntityBase e = (EntityBase) o;
+            Entity e = (Entity) o;
 
-            if (e.entityId == targetId)
+            if (e.id == targetId)
             {
                 target = e;
             }
@@ -52,7 +51,7 @@ public class GoldenCommand implements Command
             return;
         }
 
-        if (target instanceof Living living)
+        if (target instanceof LivingEntity living)
         {
             ((GoldenEntity) living).midastouch$setGolden(!((GoldenEntity) living).midastouch$getGolden());
             commandSource.sendFeedback("Golden: " + ((GoldenEntity) living).midastouch$getGolden());
@@ -74,14 +73,14 @@ public class GoldenCommand implements Command
     @Override
     public String[] suggestion(SharedCommandSource source, int parameterNum, String currentInput, String totalInput) {
         if (parameterNum == 1) {
-            PlayerBase p = source.getPlayer();
-            List<EntityBase> entities = p.level.getEntities(EntityBase.class, Box.create(p.x-20, p.y-20, p.z-20, p.x+20, p.y+20, p.z+20));
+            PlayerEntity p = source.getPlayer();
+            List<Entity> entities = p.world.collectEntitiesByClass(Entity.class, Box.create(p.x-20, p.y-20, p.z-20, p.x+20, p.y+20, p.z+20));
 
             // Use TreeMap to keep entries in order based on the distance
-            TreeMap<Double, EntityBase> distanceMap = new TreeMap<>();
+            TreeMap<Double, Entity> distanceMap = new TreeMap<>();
 
-            for (EntityBase entity : entities) {
-                double distance = p.distanceTo(entity);
+            for (Entity entity : entities) {
+                double distance = p.getDistance(entity);
                 // Handle potential duplicates (unlikely but possible)
                 while (distanceMap.containsKey(distance)) {
                     distance += 0.0001;  // Small offset to handle entities at almost same distance
@@ -92,9 +91,9 @@ public class GoldenCommand implements Command
             // Extract entity IDs from sorted entities and convert them to String
             // If entity is a PlayerBase, use getName() instead
             List<String> sortedEntityIDs = distanceMap.values().stream()
-                    .filter(entityBase -> !(entityBase instanceof PlayerBase))
-                    .filter(entityBase -> entityBase instanceof Living)
-                    .map(entity -> Integer.toString(entity.entityId))
+                    .filter(entityBase -> !(entityBase instanceof PlayerEntity))
+                    .filter(entityBase -> entityBase instanceof LivingEntity)
+                    .map(entity -> Integer.toString(entity.id))
                     .collect(Collectors.toList());
 
             // Filter and modify the suggestions based on currentInput

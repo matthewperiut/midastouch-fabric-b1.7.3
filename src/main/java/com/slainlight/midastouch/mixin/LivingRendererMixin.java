@@ -1,41 +1,53 @@
 package com.slainlight.midastouch.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.slainlight.midastouch.entity.GoldenEntity;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.model.EntityModelBase;
-import net.minecraft.entity.Living;
+import net.minecraft.client.render.entity.model.EntityModel;
+import net.minecraft.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(LivingEntityRenderer.class)
 public class LivingRendererMixin
 {
     @Shadow
-    protected EntityModelBase field_909;
+    protected EntityModel model;
+
     @Unique
     private float last = 0.F;
 
-    @Redirect(method = "method_822", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;method_820(Lnet/minecraft/entity/Living;F)F"))
-    protected float method_820(LivingEntityRenderer instance, Living f, float v)
+    @WrapOperation(
+            method = "render(Lnet/minecraft/entity/LivingEntity;DDDFF)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getHandSwingProgress(Lnet/minecraft/entity/LivingEntity;F)F"
+            )
+    )
+    protected float method_820(LivingEntityRenderer instance, LivingEntity entity, float tickDelta, Operation<Float> original)
     {
-        if (((GoldenEntity) (Object) f).midastouch$getGolden())
-            return last;
-        else
-        {
-            last = f.method_930(v);
-            return last;
+        if (!((GoldenEntity) (Object) entity).midastouch$getGolden()) {
+            last = original.call(instance, entity, tickDelta);
         }
+
+        return last;
     }
 
-    @Redirect(method = "method_822", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModelBase;animateModel(Lnet/minecraft/entity/Living;FFF)V"))
-    protected void animateCancel(EntityModelBase instance, Living f, float g, float h, float v)
+    @WrapOperation(
+            method = "render(Lnet/minecraft/entity/LivingEntity;DDDFF)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/render/entity/model/EntityModel;animateModel(Lnet/minecraft/entity/LivingEntity;FFF)V"
+            )
+    )
+    protected void animateCancel(EntityModel instance, LivingEntity entity, float limbAngle, float limbDistance, float tickDelta, Operation<Void> original)
     {
-        if (!((GoldenEntity) (Object) f).midastouch$getGolden())
+        if (!((GoldenEntity) (Object) entity).midastouch$getGolden())
         {
-            instance.animateModel(f, g, h, v);
+            original.call(instance, entity, limbAngle, limbDistance, tickDelta);
         }
     }
 }
