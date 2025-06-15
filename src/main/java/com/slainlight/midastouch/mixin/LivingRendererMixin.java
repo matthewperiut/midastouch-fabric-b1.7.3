@@ -29,8 +29,9 @@ public class LivingRendererMixin
     )
     protected float method_820(LivingEntityRenderer instance, LivingEntity entity, float tickDelta, Operation<Float> original)
     {
-        if (!((GoldenEntity) (Object) entity).midastouch$getGolden()) {
-            last = original.call(instance, entity, tickDelta);
+        if (!((GoldenEntity) (Object) entity).midastouch$getGolden())
+        {
+            last = original.call(instance, entity, (float)entity.age);
         }
 
         return last;
@@ -48,6 +49,25 @@ public class LivingRendererMixin
         if (!((GoldenEntity) (Object) entity).midastouch$getGolden())
         {
             original.call(instance, entity, limbAngle, limbDistance, tickDelta);
+        }
+    }
+
+    @WrapOperation(
+            method = "render(Lnet/minecraft/entity/LivingEntity;DDDFF)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(FFFFFF)V"
+            )
+    )
+    protected void oldAndOrnate_render(EntityModel instance, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, float scale, Operation<Void> original, LivingEntity livingEntity, double d, double e, double f, float g, float h)
+    {
+        if (!((GoldenEntity) (Object) livingEntity).midastouch$getGolden())
+        {
+            original.call(instance, limbAngle, limbDistance, animationProgress, headYaw, headPitch, scale);
+        }
+        else
+        {
+            original.call(instance, livingEntity.walkAnimationProgress, livingEntity.lastWalkAnimationSpeed, (float)livingEntity.age, headYaw, headPitch, scale);
         }
     }
 }

@@ -23,21 +23,37 @@ abstract public class LivingMixin extends Entity implements GoldenEntity
     public float swingAnimationProgress;
     @Shadow
     public float lastSwingAnimationProgress;
-
+    @Shadow
+    public float walkAnimationProgress;
     @Shadow
     public float walkAnimationSpeed;
     @Shadow
     public float lastWalkAnimationSpeed;
-
     @Shadow
     public float bodyYaw;
     @Shadow
     public float lastBodyYaw;
-
-    @Shadow
-    public float walkAnimationProgress;
     @Shadow
     public int deathTime;
+
+    @Shadow public float damagedSwingDir;
+
+    @Shadow public abstract void tickMovement();
+
+    @Unique
+    private float swingAnimationProgressHeld;
+    @Unique
+    private float walkAnimationProgressHeld;
+    @Unique
+    private float walkAnimationSpeedHeld;
+    @Unique
+    private float bodyYawHeld;
+    @Unique
+    private float yawHeld;
+    @Unique
+    private float pitchHeld;
+    @Unique
+    private int deathTimeHeld;
 
     @Shadow
     public abstract boolean isAlive();
@@ -47,6 +63,9 @@ abstract public class LivingMixin extends Entity implements GoldenEntity
 
     @Unique
     private boolean isGolden = false;
+
+    @Unique
+    private boolean frozen = false;
 
     public LivingMixin(World arg)
     {
@@ -71,28 +90,6 @@ abstract public class LivingMixin extends Entity implements GoldenEntity
         return isGolden;
     }
 
-    @Unique
-    boolean frozen = false;
-
-    @Unique
-    float lastSwingAnimationProgressHeld;
-    @Unique
-    float swingAnimationProgressHeld;
-    @Unique
-    float walkAnimationSpeedHeld;
-    @Unique
-    float lastWalkAnimationSpeedHeld;
-
-    @Unique
-    float bodyYawHeld;
-    @Unique
-    float lastBodyYawHeld;
-
-    @Unique
-    float walkAnimationProgressHeld;
-    @Unique
-    int deathTimeHeld;
-
     @Inject(
             method = "tick",
             at = @At(
@@ -105,36 +102,41 @@ abstract public class LivingMixin extends Entity implements GoldenEntity
     {
         if (((GoldenEntity) (Object) this).midastouch$getGolden() && ((LivingEntity) (Object) this).isAlive())
         {
-            if (!frozen)
-            {
-                frozen = true;
-                lastSwingAnimationProgressHeld = lastSwingAnimationProgress;
-                swingAnimationProgressHeld = swingAnimationProgress;
-                walkAnimationSpeedHeld = walkAnimationSpeed;
-                lastWalkAnimationSpeedHeld = lastWalkAnimationSpeed;
-                bodyYawHeld = bodyYaw;
-                lastBodyYawHeld = lastBodyYaw;
-                walkAnimationProgressHeld = walkAnimationProgress;
-                deathTimeHeld = deathTime;
+            if (!this.onGround) {
+                Entity entityBase = (Entity) this;
+                entityBase.move(0, -0.2F, 0);
+            } else {
+                velocityX = 0.0F;
+                velocityZ = 0.0F;
             }
 
-            lastSwingAnimationProgress = lastSwingAnimationProgressHeld;
-            swingAnimationProgress = swingAnimationProgressHeld;
+            horizontalSpeed = 0.0F;
+            damagedSwingDir = 0.0F;
 
-            walkAnimationSpeed = walkAnimationSpeedHeld;
-            lastWalkAnimationSpeed = lastWalkAnimationSpeedHeld;
-
-            bodyYaw = bodyYawHeld;
-            lastBodyYaw = lastBodyYawHeld;
-
-            walkAnimationProgress = walkAnimationProgressHeld;
-            deathTime = deathTimeHeld;
-
-            Entity entityBase = (Entity) this;
-
-            entityBase.move(0, -0.2F, 0);
-
-            ci.cancel();
+            if (!frozen) {
+                frozen = true;
+                swingAnimationProgressHeld = lastSwingAnimationProgress;
+                walkAnimationProgressHeld = walkAnimationProgress;
+                walkAnimationSpeedHeld = lastWalkAnimationSpeed;
+                bodyYawHeld = lastBodyYaw;
+                yawHeld = prevYaw;
+                pitchHeld = prevPitch;
+                deathTimeHeld = deathTime;
+            } else {
+                swingAnimationProgress = swingAnimationProgressHeld;
+                lastSwingAnimationProgress = swingAnimationProgressHeld;
+                walkAnimationProgress = walkAnimationProgressHeld;
+                walkAnimationSpeed = walkAnimationSpeedHeld;
+                lastWalkAnimationSpeed = walkAnimationSpeedHeld;
+                bodyYaw = bodyYawHeld;
+                lastBodyYaw = bodyYawHeld;
+                yaw = yawHeld;
+                prevYaw = yawHeld;
+                pitch = pitchHeld;
+                prevPitch = pitchHeld;
+                deathTime = deathTimeHeld;
+                ci.cancel();
+            }
         }
     }
 
