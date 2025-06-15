@@ -38,7 +38,9 @@ abstract public class LivingMixin extends Entity implements GoldenEntity
 
     @Shadow public float damagedSwingDir;
 
-    @Shadow public abstract void tickMovement();
+    @Shadow public abstract boolean isAlive();
+
+    @Shadow protected abstract void applyDamage(int i);
 
     @Unique
     private float swingAnimationProgressHeld;
@@ -55,15 +57,8 @@ abstract public class LivingMixin extends Entity implements GoldenEntity
     @Unique
     private int deathTimeHeld;
 
-    @Shadow
-    public abstract boolean isAlive();
-
-    @Shadow
-    protected abstract void applyDamage(int i);
-
     @Unique
     private boolean isGolden = false;
-
     @Unique
     private boolean frozen = false;
 
